@@ -16,7 +16,7 @@ def main():
         print("Que quieres hacer:")
         print("1. Crear nueva viga")
         print("2. Agregar fuerza")
-        print("3. Quitar fuerza")
+        print("3. Calcular Tensión")
         print("9. Imprimir viga y fuerzas")
         print("0. cerrar programa")
         entrada=input(">")
@@ -27,7 +27,11 @@ def main():
             if a != -1:
                 fuerzas.append(a)
         elif entrada == "3":
-            print(fm.carga_axial_fuerzas(fuerzas))
+            print("ingresa posición de la tensión (m) separada por ',': x,y,z")
+            n = [float(x) for x in input().split(",")]
+            print(fm.tension(viga, fuerzas, momentos, n[0], n[1], n[2]))
+
+
         elif entrada == "9":
             imprimir_datos(viga,fuerzas)
         elif entrada == "0":
@@ -44,10 +48,10 @@ def imprimir_datos(viga, fuerzas):
         print(x)
 
 def crear_fuerza():
-    print("ingresa posición de la fuerza separada por ',': x,y,z")
-    n = [floats(x) for x in input().split(",")]
-    print("ingresa vector de la fuerza separadas por ',': x,y,z")
-    m = [floats(x) for x in input().split(",")]
+    print("ingresa posición de la fuerza (m) separada por ',': x,y,z")
+    n = [float(x) for x in input().split(",")]
+    print("ingresa vector de la fuerza (N) separadas por ',': x,y,z")
+    m = [float(x) for x in input().split(",")]
     print("Quieres crear una fuerza con los siguientes datos y/n?")
     print("posicion = ",n)
     print("vector   = ",m)
@@ -90,40 +94,26 @@ def crear_viga():
     x, y, z, r, t = 0, 0, 0, 0, 0
     print("cuales son las dimensiones de la viga:")
     x=float(input("Largo de la viga(mm): "))
+    x=x/1000
     if perfil["perfil"] in FORMAS_CIRCULARES:
         r=float(input("radio de la viga(mm): "))
+        r=r/1000
     else:
         y=float(input("ancho de la viga(mm):"))
+        y=y/1000
         z=float(input("alto de la viga(mm):"))
+        z=z/1000
 
     if not perfil["perfil"] in FORMAS_SOLIDAS:
         t=float(input("espesor de la viga(mm):"))
+        t=t/1000
 
     return Viga(material,perfil,x,y,z,r,t)
 
 
 def valores_estado():
     #agregamos las cargas a la que se encuentra expuesta la viga
-    Fuerzas=[]
-    print(
-    """
-    1. Agregar Fuerza
-    2. Quitar Fuerza
-    3. Cambiar viga
-    0. cerrar programa
-    """)
-    entrada1 = input(">")
-    if entrada1 == "1":
-        pass
-        #agregar Fuerza
-    elif entrada1 == "2":
-        pass
-        #quitar Fuerza
-    elif entrada1 == "3":
-        #cambiar vigas (Guardar vigas y que viga esta activa)
-        pass
-    elif entrada1 == "0":
-        exit()
+    pass
 
 
 def leer_materiales():
