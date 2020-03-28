@@ -1,39 +1,34 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from math import pi
+def conversor_fuerzas(fuerzas, x, y, z):
+    #recibe una lista de fuerzas y retorna una tupla con
+    #cargas_axiales
+    #cortes
+    #momentos flectores
+    #torsores
+    pass
 
 
-def calculoK(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["K"])
 
-def calculoQ(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["Q"])
+def carga_axial_fuerzas(fuerzas):
+    #retorna la carga axial de las fuerzas
+    Nx = sum(map(lambda x: x[1][0], fuerzas))
+    return Nx
 
-def calculoAt(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["At"])
 
-def calculoIx(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["Ix"])
+def fuerza_cortante_y(fuerzas, x):
+    Vy = sum(map(lambda x: x[1][1], fuerzas))
+    return Vy
 
-def calculoIy(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["Iy"])
+def fuerza_cortante_z(fuerzas, x):
+    Vz = sum(map(lambda x: x[1][2], fuerzas))
+    return Vz
 
-def calculoIz(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["Iz"])
+def momento_y(fuerzas, momentos):
+    pass
 
-def calculoJ(perfil,x,y,z,r,t):
-    a = z
-    b = y
-    return eval(perfil["J"])
+def momento_z():
+    pass
+
+
+
+def tension(viga, cargas_axiales, momentos, x, y, z):
+    pass
