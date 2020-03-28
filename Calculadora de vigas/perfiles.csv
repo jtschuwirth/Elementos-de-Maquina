@@ -1,0 +1,5 @@
+Perfil;K;Q;At;Ix;Iy;Iz;J
+circular solido;0;0;pi*(r**2);0;pi*(r**4)/4;pi*(r**4)/4;pi*(r**4)/2
+circular hueco;0;0;pi*(r**2)-(pi*((r-t)**2));0;0;0;0
+cuadrado solido;2.25*((a/2)**4);((a/2)**3)/0.6;a**2;0;b*(a**3)/12;a*(b**3)/12;0
+cuadrado hueco;(2*(t**2)*((a-t)**4))/(2*a*t-2*(t**2));2*t*((a-t)**2);a**2-((a-t)**2);0;0;0;0
