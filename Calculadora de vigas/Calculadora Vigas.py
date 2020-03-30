@@ -14,10 +14,12 @@ def main():
 
     while True:
         print("Que quieres hacer:")
-        print("1. Crear nueva viga")
-        print("2. Agregar fuerza")
-        print("3. Calcular Tensión")
-        print("9. Imprimir viga y fuerzas")
+        print("1. Crear nueva Viga")
+        print("2. Agregar Fuerza")
+        print("3. Agregar componentes de la tabla Elementos")
+        print("5. Calcular Tensión")
+        print("6. Calcular Deflexión")
+        print("9. Imprimir Viga y Fuerzas")
         print("0. cerrar programa")
         entrada=input(">")
         if entrada == "1":
@@ -26,7 +28,19 @@ def main():
             a = crear_fuerza()
             if a != -1:
                 fuerzas.append(a)
+
         elif entrada == "3":
+            elementos = leer_elementos()
+            for elemento in elementos:
+                if elemento["tipo"] == "f":
+                    fuerzas.append((elemento["posicion"],elemento["vector"]))
+                elif elemento["tipo"] == "m":
+                    momentos.append((elemento["posicion"],elemento["vector"]))
+                elif elemento["tipo"] == "t":
+                    torsores.append((elemento["posicion"],elemento["vector"]))
+
+
+        elif entrada == "5":
             print("ingresa posición de la tensión (m) separada por ',': x,y,z")
             n = [float(x) for x in input().split(",")]
             print(fm.tension(viga, fuerzas, momentos, n[0], n[1], n[2]))
@@ -144,6 +158,17 @@ def leer_perfiles():
                              "Iz":(line[6]),
                              "J":(line[7])})
     return perfiles
+
+def leer_elementos():
+    elementos = []
+    with open ("elementos.csv","r") as file:
+        file.readline()
+        for line in file:
+            line=line.strip("\n").split(";") #Creamos una lista
+            elementos.append({"tipo":line[0],
+                             "posicion":[int(line[1]),int(line[2]),int(line[3])],
+                             "vector":[int(line[4]),int(line[5]),int(line[6])]})
+    return elementos
 
 
 
