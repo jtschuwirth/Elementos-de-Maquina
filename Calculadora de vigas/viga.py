@@ -16,7 +16,7 @@ class Viga:
         perfil = {self.perfil["perfil"]}
         x =  {self.x}
         y =  {self.y}
-        x =  {self.z}
+        z =  {self.z}
         r =  {self.r}
         t =  {self.t}
         """

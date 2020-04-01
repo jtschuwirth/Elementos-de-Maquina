@@ -1,9 +1,11 @@
 from viga import Viga
 import formulas as fm
+from math import pi, sin,  cos
+from numpy import arange
 
 FORMAS_CIRCULARES=["circular solido","circular hueco"]
 FORMAS_SOLIDAS=["circular solido","cuadrado solido"]
-
+SALTO_PUNTO_CRITICO = 100
 
 def main():
     #menu principal del programa
@@ -15,50 +17,96 @@ def main():
     while True:
         print("Que quieres hacer:")
         print("1. Crear nueva Viga")
-        print("2. Agregar Fuerza")
-        print("3. Agregar componentes de la tabla Elementos")
-        print("5. Calcular Tensión")
-        print("6. Calcular Deflexión")
-        print("9. Imprimir Viga y Fuerzas")
+        print("2. Abrir Viga predeterminada")
+        print("")
+        print("3. Agregar una Carga")
+        print("4. Agregar Cargas predeterminadas")
+        print("")
+        print("5. Calcular Tensión en un punto")
+        print("6. Calcular punto mas critico")
+        print("")
+        print("7. Calcular deflexión")
+        print("8.")
+        print("")
+        print("9. Imprimir Viga y Cargas")
         print("0. cerrar programa")
         entrada=input(">")
         if entrada == "1":
             viga = crear_viga()
+
         elif entrada == "2":
-            a = crear_fuerza()
-            if a != -1:
-                fuerzas.append(a)
+            viga = leer_viga_predeterminada()
 
         elif entrada == "3":
-            elementos = leer_elementos()
-            for elemento in elementos:
-                if elemento["tipo"] == "f":
-                    fuerzas.append((elemento["posicion"],elemento["vector"]))
+            print("Que tipo de carga es(f o m)?")
+            tipocarga = input(">")
+            if tipocarga == "f":
+                a = crear_fuerza()
+                if a != -1:
+                    fuerzas.append(a)
+            elif tipocarga == "m":
+                a = crear_momento()
+                if a != -1:
+                    momentos.append(a)
+            else:
+                print("input invalido")
+                print("")
+                print("")
+
+        elif entrada == "4":
+            cargas = leer_cargas()
+            for carga in cargas:
+                if carga["tipo"] == "f":
+                    fuerzas.append((carga["posicion"],carga["vector"]))
                 elif elemento["tipo"] == "m":
-                    momentos.append((elemento["posicion"],elemento["vector"]))
+                    momentos.append((carga["posicion"],carga["vector"]))
                 elif elemento["tipo"] == "t":
-                    torsores.append((elemento["posicion"],elemento["vector"]))
+                    torsores.append((carga["posicion"],carga["vector"]))
 
 
         elif entrada == "5":
-            print("ingresa posición de la tensión (m) separada por ',': x,y,z")
-            n = [float(x) for x in input().split(",")]
-            print(fm.tension(viga, fuerzas, momentos, n[0], n[1], n[2]))
+            print("ingresa posición del punto a evaluar (mm) separada por ',': x,y,z")
+            n = [float(x)/1000 for x in input().split(",")]
+            print(fm.tension(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000, "MPa")
 
+
+        elif entrada == "6":
+            valores_obtenidos = set() #set con tuplas (tension, (x,y,z))
+            if viga.perfil["perfil"] in FORMAS_CIRCULARES:
+                for x1 in arange(0,viga.x,viga.x/SALTO_PUNTO_CRITICO):
+                    for theta in arange(0, 2*pi, 2*pi/SALTO_PUNTO_CRITICO):
+                        y1 = viga.r*cos(theta)
+                        z1 = viga.r*sin(theta)
+                        resultado = fm.tension(viga, fuerzas, momentos, x1, y1, z1)
+                        valores_obtenidos.add((resultado,(x1,y1,z1)))
+            else:
+                pass
+
+            maximo = max(valores_obtenidos, key = lambda x: x[0])
+            minimo = min(valores_obtenidos, key = lambda x: x[0])
+
+            print(f"Máximo = {maximo[0]/1000000} MPa; pos = {maximo[1]}")
+            print(f"Míximo = {minimo[0]/1000000} MPa; pos = {minimo[1]}")
+
+        elif entrada == "7":
+            pass
 
         elif entrada == "9":
-            imprimir_datos(viga,fuerzas)
+            imprimir_datos(viga,fuerzas,momentos)
         elif entrada == "0":
             exit()
         else:
             print("input invalido")
             print("--------------")
 
-def imprimir_datos(viga, fuerzas):
+def imprimir_datos(viga, fuerzas,momentos):
     print("Datos de la viga")
     print(viga)
     print("Datos de las fuerzas")
     for x in fuerzas:
+        print(x)
+    print("Datos de los momentos")
+    for x in momentos:
         print(x)
 
 def crear_fuerza():
@@ -78,6 +126,22 @@ def crear_fuerza():
             return -1
         return crear_fuerza()
 
+def crear_momento():
+    print("ingresa posición del momento (m) separada por ',': x,y,z")
+    n = [float(x) for x in input().split(",")]
+    print("ingresa vector del momento (Nm) separadas por ',': x,y,z")
+    m = [float(x) for x in input().split(",")]
+    print("Quieres crear un momento con los siguientes datos y/n?")
+    print("posicion = ",n)
+    print("vector   = ",m)
+    a = input(">")
+    if a =="y" or a =="Y":
+        return (n,m)
+    else:
+        a=input("ingresa 0 para regresar, otro input para crear otra fuerza\n>")
+        if a==0:
+            return -1
+        return crear_momento()
 
 
 def crear_viga():
@@ -159,19 +223,46 @@ def leer_perfiles():
                              "J":(line[7])})
     return perfiles
 
-def leer_elementos():
-    elementos = []
-    with open ("elementos.csv","r") as file:
+def leer_cargas():
+    cargas = []
+    with open ("cargas.csv","r") as file:
         file.readline()
         for line in file:
             line=line.strip("\n").split(";") #Creamos una lista
-            elementos.append({"tipo":line[0],
-                             "posicion":[int(line[1]),int(line[2]),int(line[3])],
+            cargas.append({"tipo":line[0],
+                             "posicion":[float(line[1])/1000,float(line[2])/1000,float(line[3])/1000],
                              "vector":[int(line[4]),int(line[5]),int(line[6])]})
-    return elementos
+    return cargas
 
+def leer_viga_predeterminada():
+    with open ("viga_predeterminada.csv","r") as file:
+        file.readline()
+        line = file.readline()
+        line=line.strip("\n").split(";") #Creamos una lista
+        viga = {"material":line[0],
+                     "perfil":(line[1]),
+                      "x":float(line[2])/1000,
+                      "y":float(line[3])/1000,
+                      "z":float(line[4])/1000,
+                      "r":float(line[5])/1000,
+                      "t":float(line[6])/1000}
 
+        materiales = leer_materiales()
+        for material in materiales:
+            if material["material"] == viga["material"]:
+                break
+        perfiles = leer_perfiles()
+        for perfil in perfiles:
+            if perfil["perfil"] == viga["perfil"]:
+                break
 
+        return Viga(material,
+                    perfil,
+                    viga["x"],
+                    viga["y"],
+                    viga["z"],
+                    viga["r"],
+                    viga["t"])
 
 
 main()
