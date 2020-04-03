@@ -1,6 +1,6 @@
 from viga import Viga
 import formulas as fm
-from math import pi, sin,  cos
+from math import pi, sin,  cos, sqrt
 from numpy import arange
 
 FORMAS_CIRCULARES=["circular solido","circular hueco"]
@@ -12,7 +12,6 @@ def main():
     viga = None
     fuerzas = []
     momentos = []
-    torsores = []
 
     while True:
         print("Que quieres hacer:")
@@ -22,8 +21,8 @@ def main():
         print("3. Agregar una Carga")
         print("4. Agregar Cargas predeterminadas")
         print("")
-        print("5. Calcular Tensión en un punto")
-        print("6. Calcular punto mas critico")
+        print("5. Calcular Matriz de Tensiónes en un punto")
+        print("6. Calcular Punto mas critico")
         print("")
         print("7. Calcular deflexión")
         print("8.")
@@ -58,16 +57,28 @@ def main():
             for carga in cargas:
                 if carga["tipo"] == "f":
                     fuerzas.append((carga["posicion"],carga["vector"]))
-                elif elemento["tipo"] == "m":
+                elif carga["tipo"] == "m":
                     momentos.append((carga["posicion"],carga["vector"]))
-                elif elemento["tipo"] == "t":
+                elif carga["tipo"] == "t":
                     torsores.append((carga["posicion"],carga["vector"]))
 
 
         elif entrada == "5":
             print("ingresa posición del punto a evaluar (mm) separada por ',': x,y,z")
             n = [float(x)/1000 for x in input().split(",")]
-            print(fm.tension(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000, "MPa")
+            matriz_tension = [(fm.tension(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000,
+                               fm.esfuerzo_cortante_xy(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000,
+                               fm.esfuerzo_cortante_xz(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000),
+                               (fm.esfuerzo_cortante_xy(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000,0,0),
+                               (fm.esfuerzo_cortante_xz(viga, fuerzas, momentos, n[0], n[1], n[2])/1000000,0,0)]
+            print("")
+            sigma_vm = sqrt(matriz_tension[0][0]**2+3*((matriz_tension[0][1]**2)+(matriz_tension[0][2])**2))
+            for x in matriz_tension:
+                print(x)
+            print("Mpa")
+            print("")
+            print("Tension Von Mises:,", sigma_vm ,"Mpa" )
+            print("")
 
 
         elif entrada == "6":
