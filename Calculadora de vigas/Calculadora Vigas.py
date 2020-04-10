@@ -12,6 +12,7 @@ def main():
     viga = None
     fuerzas = []
     momentos = []
+    deflexion = []
 
     while True:
         print("Que quieres hacer:")
@@ -24,7 +25,7 @@ def main():
         print("5. Calcular Matriz de Tensiónes en un punto")
         print("6. Calcular Punto mas critico")
         print("")
-        print("7. Calcular deflexión")
+        print("7. Calcular deflexión maxima (Solo Vigas con soportes en los extremos y carga en el centro)")
         print("8.")
         print("")
         print("9. Imprimir Viga y Cargas")
@@ -93,6 +94,7 @@ def main():
             else:
                 pass
 
+
             maximo = max(valores_obtenidos, key = lambda x: x[0])
             minimo = min(valores_obtenidos, key = lambda x: x[0])
 
@@ -100,7 +102,10 @@ def main():
             print(f"Míximo = {minimo[0]/1000000} MPa; pos = {minimo[1]}")
 
         elif entrada == "7":
-            pass
+            def_max = fm.deflexion_maxima(viga, fuerzas)
+            def_max_mm = def_max*1000
+            print(def_max_mm,"mm")
+
 
         elif entrada == "9":
             imprimir_datos(viga,fuerzas,momentos)

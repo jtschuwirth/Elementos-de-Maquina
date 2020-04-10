@@ -103,5 +103,8 @@ def esfuerzo_cortante_xz(viga, fuerzas, momentos, x, y, z):
 
 
 
-def deflexion(viga, fuerzas, momentos, torsores, x, y, z):
-    pass
+def deflexion_maxima(viga, fuerzas):
+    fuerzas = filter(lambda i: i[1][2] < 0, fuerzas)
+    fuerza = next(fuerzas)
+    y = fuerza[1][2]*viga.x**3/(48*(viga.material["E"]*10**9)*viga.Iy)
+    return y
